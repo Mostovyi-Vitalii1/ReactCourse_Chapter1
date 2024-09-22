@@ -1,35 +1,44 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import PageTitle from './components/PageTitle'
+import Search from './components/Search'
+import Add from './components/Add'
+import Table from './components/Table'
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  const [todos, setTodos] = useState([
+    { id: 1, title: 'delectus aut autem' },
+    { id: 2, title: 'quis ut nam facilis et officia qui' },
+  ])
+  const [newTodo, setNewTodo] = useState('')
+  const [search, setSearch] = useState('')
+
+  const addTodo = () => {
+    if (newTodo.trim() === '') return
+    const newId = todos.length > 0 ? todos[todos.length - 1].id + 1 : 1
+    setTodos([...todos, { id: newId, title: newTodo }])
+    setNewTodo('')
+  }
+
+  const removeTodo = (id) => {
+    setTodos(todos.filter((todo) => todo.id !== id))
+  }
+
+  const filteredTodos = todos.filter((todo) =>
+    todo.title.toLowerCase().includes(search.toLowerCase())
+  )
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="App">
+      <PageTitle title="ToDo App." />
+      <Search search={search} setSearch={setSearch} />
+      <div className="todo-container">
+        <Add newTodo={newTodo} setNewTodo={setNewTodo} addTodo={addTodo} />
+        <Table todos={filteredTodos} removeTodo={removeTodo} />
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    </div>
   )
+  
 }
 
 export default App
