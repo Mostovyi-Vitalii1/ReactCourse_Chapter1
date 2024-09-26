@@ -3,9 +3,13 @@ import AddTodo from './AddTodo';
 import Search from './Search';
 import Table from './Table';
 
-const ToDoContainer = ({ todos, setTodos }) => {
+const ToDoContainer = () => {
   const [newTodo, setNewTodo] = useState('');
   const [search, setSearch] = useState('');
+  const [todos, setTodos] = useState([
+    { id: 1, title: 'delectus aut autem' },
+    { id: 2, title: 'quis ut nam facilis et officia qui' },
+  ]);
 
   const addTodo = () => {
     if (newTodo.trim() === '') return;
