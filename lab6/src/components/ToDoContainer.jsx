@@ -2,74 +2,68 @@ import React, { useState, useEffect } from 'react';
 import AddTodo from './AddTodo';
 import Search from './Search';
 import Table from './Table';
-import Loader from './Loader';
 import useFetch from './useFetch';
-import useLoading from './useLoading';
+import useLoading from './useLoading'; // Припускаємо, що цей хук у вас також є
 
 const ToDoContainer = () => {
   const { data: fetchedTodos, error, loading } = useFetch('https://jsonplaceholder.typicode.com/todos?_limit=10');
   const isLoading = useLoading(loading);
 
-  const [todos, setTodos] = useState([]);
-  const [newTodo, setNewTodo] = useState('');
-  const [search, setSearch] = useState('');
+  const [todos, setTodos] = useState([]);  // Стан для туду
+  const [newTodo, setNewTodo] = useState('');  // Стан для нового туду
+  const [search, setSearch] = useState('');  // Стан для пошуку
 
+  // Синхронізація даних з API
   useEffect(() => {
     if (fetchedTodos) {
       setTodos(fetchedTodos);
     }
   }, [fetchedTodos]);
 
-  const addTodo = async () => {
+  // Функція для додавання нової задачі
+  const addTodo = () => {
     if (newTodo.trim() === '') return;
-    const newTodoItem = { title: newTodo, completed: false };
-    const response = await fetch('https://jsonplaceholder.typicode.com/todos', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(newTodoItem),
-    });
-
-    if (response.ok) {
-      const addedTodo = await response.json();
-      setTodos([...todos, addedTodo]);
-      setNewTodo('');
-    } else {
-      console.error('Failed to add todo');
-    }
+    const newId = todos.length > 0 ? todos[todos.length - 1].id + 1 : 1;
+    const newTodoItem = { id: newId, title: newTodo };
+    setTodos([...todos, newTodoItem]);
+    setNewTodo('');  // Очищаємо інпут після додавання задачі
   };
 
-  const removeTodo = async (id) => {
-    const response = await fetch(`https://jsonplaceholder.typicode.com/todos/${id}`, {
-      method: 'DELETE',
-    });
-
-    if (response.ok) {
-      const updatedTodos = todos.filter((todo) => todo.id !== id);
-      setTodos(updatedTodos);
-    } else {
-      console.error('Failed to delete todo');
-    }
+  // Функція для видалення задачі
+  const removeTodo = (id) => {
+    const updatedTodos = todos.filter((todo) => todo.id !== id);
+    setTodos(updatedTodos);
   };
 
-  const updateTodo = (id, newTitle) => {
-    const updatedTodos = todos.map((todo) =>
+  // Функція для редагування задачі
+  const editTodo = (id, newTitle) => {
+    const updatedTodos = todos.map(todo =>
       todo.id === id ? { ...todo, title: newTitle } : todo
     );
     setTodos(updatedTodos);
   };
 
+  // Фільтрація задач на основі пошукового запиту
   const filteredTodos = todos.filter((todo) =>
     todo.title.toLowerCase().includes(search.toLowerCase())
   );
 
+  // Відображаємо стан завантаження
+  if (isLoading) {
+    return <p>Loading...</p>;
+  }
+
+  // Відображаємо повідомлення про помилку, якщо вона виникла
+  if (error) {
+    return <p>Error: {error}</p>;
+  }
+
   return (
-    <Loader loading={isLoading}>
+    <div>
       <AddTodo newTodo={newTodo} setNewTodo={setNewTodo} addTodo={addTodo} />
       <Search search={search} setSearch={setSearch} />
-      <Table todos={filteredTodos} removeTodo={removeTodo} updateTodo={updateTodo} />
-    </Loader>
+      <Table todos={filteredTodos} removeTodo={removeTodo} editTodo={editTodo} />
+    </div>
   );
 };
 

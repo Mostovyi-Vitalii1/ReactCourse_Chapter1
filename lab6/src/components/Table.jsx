@@ -1,65 +1,67 @@
 import React, { useState } from 'react';
 
-const Table = ({ todos, removeTodo, updateTodo }) => {
+const Table = ({ todos, removeTodo, editTodo }) => {
+  const [editMode, setEditMode] = useState(null);
+  const [editedTodo, setEditedTodo] = useState('');
+  const [error, setError] = useState('');
+
+  const handleEdit = (todo) => {
+    setEditMode(todo.id);
+    setEditedTodo(todo.title);
+    setError(''); // Очищаємо помилку при переході в режим редагування
+  };
+
+  const handleSave = (todo) => {
+    if (editedTodo.trim() === '') {
+      setError('Title is required.'); // Встановлюємо повідомлення про помилку
+      return;
+    }
+    
+    // Викликаємо функцію редагування з новим значенням
+    editTodo(todo.id, editedTodo);
+    
+    // Очищення станів після збереження
+    setEditMode(null);
+    setEditedTodo(''); // Очищуємо текстове поле
+    setError(''); // Очищаємо помилку після збереження
+  };
+
   return (
     <table>
-      <thead>
-        <tr>
-          <th>Task</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
       <tbody>
         {todos.map((todo) => (
-          <TodoItem 
-            key={todo.id} 
-            todo={todo} 
-            removeTodo={removeTodo} 
-            updateTodo={updateTodo} 
-          />
+          <tr key={todo.id}>
+            <td>
+              {editMode === todo.id ? (
+                <div>
+                  <input
+                    type="text"
+                    value={editedTodo}
+                    onChange={(e) => setEditedTodo(e.target.value)}
+                    style={{
+                      borderColor: error && editMode === todo.id ? 'red' : 'initial', // Підсвічування червоним
+                    }}
+                  />
+                  {error && editMode === todo.id && (
+                    <span style={{ color: 'red', marginLeft: '5px' }}>{error}</span> // Показуємо повідомлення про помилку
+                  )}
+                </div>
+              ) : (
+                todo.title
+              )}
+            </td>
+            <td>
+              {editMode === todo.id ? (
+                <button onClick={() => handleSave(todo)}>Save</button>
+              ) : (
+                <button onClick={() => handleEdit(todo)}>Edit</button>
+              )}
+              <button onClick={() => removeTodo(todo.id)}>Remove</button>
+            </td>
+          </tr>
         ))}
       </tbody>
     </table>
-  );
-};
-
-const TodoItem = ({ todo, removeTodo, updateTodo }) => {
-  const [isEditing, setIsEditing] = useState(false);  // Контролює режим редагування
-  const [editValue, setEditValue] = useState(todo.title); // Тримати поточне значення
-
-  const handleEdit = () => {
-    setIsEditing(true); // Включити режим редагування
-  };
-
-  const handleSave = () => {
-    if (editValue.trim() !== '') {
-      updateTodo(todo.id, editValue); // Оновити завдання
-      setIsEditing(false); // Вимкнути режим редагування після збереження
-    }
-  };
-
-  return (
-    <tr>
-      <td>
-        {isEditing ? (
-          <input 
-            type="text" 
-            value={editValue} 
-            onChange={(e) => setEditValue(e.target.value)} 
-          />
-        ) : (
-          todo.title
-        )}
-      </td>
-      <td>
-        {isEditing ? (
-          <button onClick={handleSave}>Save</button> // Кнопка збереження
-        ) : (
-          <button onClick={handleEdit}>Edit</button> // Кнопка редагування
-        )}
-        <button onClick={() => removeTodo(todo.id)}>Remove</button>
-      </td>
-    </tr>
   );
 };
 
