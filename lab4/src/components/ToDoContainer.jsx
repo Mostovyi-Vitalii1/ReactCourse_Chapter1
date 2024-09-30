@@ -6,49 +6,57 @@ import useFetch from './useFetch';
 import useLoading from './useLoading';
 
 const ToDoContainer = () => {
-  // Використовуємо кастомний хук useFetch для завантаження даних з API
+  // Завантаження даних з JSONPlaceholder API
   const { data: fetchedTodos, error, loading } = useFetch('https://jsonplaceholder.typicode.com/todos?_limit=10');
-  // Хук для управління станом завантаження
   const isLoading = useLoading(loading);
 
-  // Ініціалізація стану з даними з localStorage
-  const [todos, setTodos] = useState(() => {
-    const savedTodos = localStorage.getItem('todos');
-    return savedTodos ? JSON.parse(savedTodos) : [];
-  });
+  const [todos, setTodos] = useState([]);
+  const [newTodo, setNewTodo] = useState('');
+  const [search, setSearch] = useState('');
 
-  const [newTodo, setNewTodo] = useState('');  // Стан для нового туду
-  const [search, setSearch] = useState('');  // Стан для пошуку
-
-  // Збереження даних в localStorage після зміни списку todos
+  // Синхронізація даних з API
   useEffect(() => {
-    if (todos.length > 0) {
-      localStorage.setItem('todos', JSON.stringify(todos));
-    }
-  }, [todos]);
-
-  // Синхронізація даних з API і стану localStorage
-  useEffect(() => {
-    if (fetchedTodos && todos.length === 0) {
+    if (fetchedTodos) {
       setTodos(fetchedTodos);
     }
   }, [fetchedTodos]);
 
   // Функція для додавання нової задачі
-  const addTodo = () => {
+  const addTodo = async () => {
     if (newTodo.trim() === '') return;
-    const newId = todos.length > 0 ? todos[todos.length - 1].id + 1 : 1;
-    const newTodoItem = { id: newId, title: newTodo };
-    setTodos([...todos, newTodoItem]);
-    setNewTodo('');  // Очищаємо інпут після додавання задачі
+
+    // Додати нове завдання (імітуємо додавання через API)
+    const newTodoItem = { title: newTodo, completed: false };
+    
+    // Використовуємо POST-запит (фіктивний, тому тут просто імітуємо додавання)
+    const response = await fetch('https://jsonplaceholder.typicode.com/todos', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newTodoItem),
+    });
+
+    if (response.ok) {
+      const addedTodo = await response.json();
+      setTodos([...todos, addedTodo]);
+      setNewTodo('');
+    } else {
+      console.error('Failed to add todo');
+    }
   };
 
   // Функція для видалення задачі
-  const removeTodo = (id) => {
-    const updatedTodos = todos.filter((todo) => todo.id !== id);
-    setTodos(updatedTodos);
-    if (updatedTodos.length === 0) {
-      localStorage.removeItem('todos');
+  const removeTodo = async (id) => {
+    const response = await fetch(`https://jsonplaceholder.typicode.com/todos/${id}`, {
+      method: 'DELETE',
+    });
+
+    if (response.ok) {
+      const updatedTodos = todos.filter((todo) => todo.id !== id);
+      setTodos(updatedTodos);
+    } else {
+      console.error('Failed to delete todo');
     }
   };
 

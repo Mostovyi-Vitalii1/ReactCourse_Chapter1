@@ -26,7 +26,7 @@ const Search = ({ search, setSearch }) => {
         }}
       />
     </div>
-  )
-}
+  );
+};
 
 export default Search;
