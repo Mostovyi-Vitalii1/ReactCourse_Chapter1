@@ -8,7 +8,7 @@ const useFetch = (url, method = 'GET', body = null) => {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      setError(null); // Скидаємо помилку перед новим запитом
+      setError(null); 
       try {
         const options = {
           method,
@@ -17,7 +17,7 @@ const useFetch = (url, method = 'GET', body = null) => {
           },
         };
         if (body) {
-          options.body = JSON.stringify(body); // Додаємо тіло для POST-запиту
+          options.body = JSON.stringify(body); 
         }
         const response = await fetch(url, options);
         
@@ -37,7 +37,7 @@ const useFetch = (url, method = 'GET', body = null) => {
     fetchData();
   }, [url, method, body]); // Додаємо залежності для методу та тіла
 
-  return { data, loading, error };
+  return { data, loading, error, setData };
 };
 
 export default useFetch;
