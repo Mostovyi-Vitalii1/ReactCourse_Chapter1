@@ -1,13 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
-const useLoading = (loading) => {
-  const [isLoading, setIsLoading] = useState(loading);
-
-  useEffect(() => {
-    setIsLoading(loading);
-  }, [loading]);
-
-  return isLoading;
+const useLoading = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  return {isLoading, setIsLoading};
 };
 
 export default useLoading;
